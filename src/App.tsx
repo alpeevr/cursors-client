@@ -1,7 +1,33 @@
 import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import randomcolor from "randomcolor";
+
+export type Cursor = {
+  color: string;
+  position: {
+    x: number;
+    y: number;
+  };
+};
+
+export type ServerToClientEvents = {
+  cursor_updates: (cursors: Cursor[]) => void;
+};
+
+export type ClientToServerEvents = {
+  cursor_receiver: (cursor: Cursor) => void;
+};
 
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
+
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+  "https://cursors-socket.onrender.com"
+);
+
+socket.on("connect", () => {
+  console.log("Connected to the server");
+});
 
 function App() {
   const [hasAccess, setHasAccess] = useState(false);
@@ -20,23 +46,30 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        setAlhpa(e.alpha!);
-        setBeta(e.beta!);
-        setGamma(e.gamma!);
+        const { alpha, beta, gamma } = e;
+
+        setAlhpa(alpha);
+        setBeta(beta);
+        setGamma(gamma);
+
+        const x = alpha / 360;
+        const y = (beta + 180) / 360;
+
+        const mappedX = x * screenWidth;
+        const mappedY = y * screenHeight;
+
+        setX(mappedX);
+        setY(mappedY);
+
+        if (socket.connected) {
+          socket.emit("cursor_receiver", {
+            color: randomcolor(),
+            position: { x, y },
+          });
+        }
       }
     });
   }, [hasAccess]);
-
-  useEffect(() => {
-    let x = (alpha / 360) * screenWidth;
-    let y = ((beta + 180) / 360) * screenHeight;
-
-    x = Math.max(0, Math.min(screenWidth - 20, x));
-    y = Math.max(0, Math.min(screenHeight - 20, y));
-
-    setX(x);
-    setY(y);
-  }, [alpha, beta, gamma]);
 
   async function getPermission() {
     const result = await getOrientation();
@@ -45,19 +78,26 @@ function App() {
 
   return (
     <div>
-      <button
-        onClick={async () => {
-          await getPermission();
-        }}
-      >
-        Get permission
-      </button>
-      <div>Alpha: {alpha}</div>
-      <div>Beta: {beta}</div>
-      <div>Gamma: {gamma}</div>
-      <div style={{ height: 50 }} />
-      <div>X: {x}</div>
-      <div>Y: {y}</div>
+      {!hasAccess ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={async () => {
+              await getPermission();
+            }}
+          >
+            Get permission
+          </button>
+        </div>
+      ) : (
+        <div>
+          <div>Alpha: {alpha}</div>
+          <div>Beta: {beta}</div>
+          <div>Gamma: {gamma}</div>
+          <div style={{ height: 50 }} />
+          <div>X: {x}</div>
+          <div>Y: {y}</div>
+        </div>
+      )}
     </div>
   );
 }
