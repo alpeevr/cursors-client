@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export type Cursor = {
@@ -34,6 +34,9 @@ function App() {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
 
+  const initialAlpha = useRef<number | null>(null);
+  const initialBeta = useRef<number | null>(null);
+
   useEffect(() => {
     if (!hasAccess) {
       getPermission();
@@ -45,27 +48,25 @@ function App() {
     }
 
     let position: Cursor["position"] = { x: 0, y: 0 };
-    let initialAlpha: number | null = null;
-    let initialBeta: number | null = null;
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
         const { alpha, beta, gamma } = e;
 
-        if (initialAlpha === null || initialBeta === null) {
-          initialAlpha = alpha;
-          initialBeta = beta;
+        if (initialAlpha.current === null || initialBeta.current === null) {
+          initialAlpha.current = alpha;
+          initialBeta.current = beta;
         }
 
-        const deltaAlpha = alpha - initialAlpha;
-        const deltaBeta = beta - initialBeta;
+        const deltaAlpha = alpha - initialAlpha.current;
+        const deltaBeta = beta - initialBeta.current;
 
         setAlhpa(alpha);
         setBeta(beta);
         setGamma(gamma);
 
-        const x = 0.5 + deltaAlpha / 360; // Small changes in alpha, mapped to (0, 1)
-        const y = 0.5 + deltaBeta / 360; // Small changes in beta, mapped to (0, 1)
+        const x = 0.5 + deltaAlpha / 360;
+        const y = 0.5 + deltaBeta / 360;
 
         const normalizedX = Math.max(0, Math.min(1, x));
         const normalizedY = Math.max(0, Math.min(1, y));
