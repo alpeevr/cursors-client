@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export type Cursor = {
@@ -27,15 +27,6 @@ socket.on("connect", () => {
 
 function App() {
   const [hasAccess, setHasAccess] = useState(false);
-  const [alpha, setAlhpa] = useState(0);
-  const [beta, setBeta] = useState(0);
-  const [gamma, setGamma] = useState(0);
-
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
-
-  const initialAlpha = useRef<number | null>(null);
-  const initialBeta = useRef<number | null>(null);
 
   useEffect(() => {
     if (!hasAccess) {
@@ -51,30 +42,19 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        const { alpha, beta, gamma } = e;
+        let { beta: x, gamma: y } = e;
 
-        if (initialAlpha.current === null || initialBeta.current === null) {
-          initialAlpha.current = alpha;
-          initialBeta.current = beta;
+        if (x > 90) {
+          x = 90;
+        }
+        if (x < -90) {
+          x = -90;
         }
 
-        const deltaAlpha = alpha - initialAlpha.current;
-        const deltaBeta = beta - initialBeta.current;
+        x += 90;
+        y += 90;
 
-        setAlhpa(alpha);
-        setBeta(beta);
-        setGamma(gamma);
-
-        const x = 0.5 + deltaAlpha / 360;
-        const y = 0.5 + deltaBeta / 360;
-
-        const normalizedX = Math.max(0, Math.min(1, x));
-        const normalizedY = Math.max(0, Math.min(1, y));
-
-        setX(normalizedX);
-        setY(normalizedY);
-
-        position = { x: +normalizedX.toFixed(3), y: +normalizedY.toFixed(3) };
+        position = { x, y };
       }
     });
 
@@ -93,26 +73,15 @@ function App() {
 
   return (
     <div>
-      {!hasAccess ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <button
-            onClick={async () => {
-              await getPermission();
-            }}
-          >
-            Get permission
-          </button>
-        </div>
-      ) : (
-        <div>
-          <div>Alpha: {alpha}</div>
-          <div>Beta: {beta}</div>
-          <div>Gamma: {gamma}</div>
-          <div style={{ height: 50 }} />
-          <div>X: {x}</div>
-          <div>Y: {y}</div>
-        </div>
-      )}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button
+          onClick={async () => {
+            await getPermission();
+          }}
+        >
+          Get permission
+        </button>
+      </div>
     </div>
   );
 }
