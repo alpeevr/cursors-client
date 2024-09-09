@@ -42,22 +42,16 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        let { alpha: x, beta: y } = e;
+        const gamma = e.gamma; // Left-right tilt (-90 to 90)
+        const beta = e.beta; // Forward-backward tilt (-180 to 180)
 
-        x = x * -1;
-        y = y * -1;
+        // Map gamma to x (horizontal position)
+        const x = (gamma + 90) / 180;
 
-        if (x > 90) {
-          x = 90;
-        }
-        if (x < -90) {
-          x = -90;
-        }
+        // Map beta to y (vertical position)
+        const y = (beta + 180) / 360;
 
-        x += 90;
-        y += 90;
-
-        position = { x: x / 180, y: y / 180 };
+        position = { x, y };
       }
     });
 
