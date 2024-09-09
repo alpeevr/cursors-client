@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import randomcolor from "randomcolor";
 
 export type Cursor = {
   color: string;
@@ -15,7 +14,7 @@ export type ServerToClientEvents = {
 };
 
 export type ClientToServerEvents = {
-  cursor_receiver: (cursor: Cursor) => void;
+  cursor_receiver: (cursor: Omit<Cursor, "color">) => void;
 };
 
 const screenWidth = window.innerWidth;
@@ -63,7 +62,6 @@ function App() {
 
         if (socket.connected) {
           socket.emit("cursor_receiver", {
-            color: randomcolor(),
             position: { x: mappedX, y: mappedY },
           });
         }
