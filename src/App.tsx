@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export type Cursor = {
@@ -27,6 +27,8 @@ socket.on("connect", () => {
 
 function App() {
   const [hasAccess, setHasAccess] = useState(false);
+  const initialAlpha = useRef<number | null>(null);
+  const initialBeta = useRef<number | null>(null);
 
   useEffect(() => {
     if (!hasAccess) {
@@ -43,15 +45,23 @@ function App() {
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
         const alpha = e.alpha; // Left-right tilt (-90 to 90)
-        const beta = e.beta; // Forward-backward tilt (-180 to 180)
+        let beta = e.beta; // Forward-backward tilt (-180 to 180)
+
+        if (beta < -45) beta = -45;
+        if (beta > 45) beta = 45;
 
         // Map gamma to x (horizontal position)
-        const x = (alpha + 360) / 180;
+        const x = alpha / 360;
 
         // Map beta to y (vertical position)
-        const y = (beta + 180) / 360;
+        const y = (beta + 45) / 90;
 
-        position = { x, y };
+        if (initialAlpha.current === null || initialBeta.current === null) {
+          initialAlpha.current = x;
+          initialBeta.current = y;
+        }
+
+        position = { x: initialAlpha.current - x, y: initialBeta.current - y };
       }
     });
 
