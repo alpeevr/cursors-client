@@ -61,7 +61,7 @@ function App() {
           initialBeta.current = y;
         }
 
-        position = { x: initialAlpha.current - x, y: initialBeta.current - y };
+        position = { x: x - initialAlpha.current, y: y - initialBeta.current };
       }
     });
 
