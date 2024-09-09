@@ -44,13 +44,11 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        const alpha = e.alpha; // 0 to 360 degrees (Z-axis)
-        const beta = e.beta; // -180 to 180 degrees (X-axis)
+        const alpha = e.alpha;
+        const beta = e.beta;
 
-        // Map alpha (0 to 360) to x (0 to 900)
         const x = alpha / 360;
 
-        // Map beta (-180 to 180) to y (0 to 600)
         const y = (beta + 180) / 360;
 
         position = { x, y };
