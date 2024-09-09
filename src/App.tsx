@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export type Cursor = {
@@ -27,32 +27,15 @@ socket.on("connect", () => {
 
 function App() {
   const [hasAccess, setHasAccess] = useState(false);
-  const initialAlpha = useRef<number | null>(null);
-  const initialBeta = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!hasAccess) {
-      getPermission();
-      return;
-    }
-
-    if (!socket.connected) {
-      return;
-    }
+    const w = window.innerWidth;
+    const h = window.innerHeight;
 
     let position: Cursor["position"] = { x: 0, y: 0 };
 
-    window.addEventListener("deviceorientation", (e) => {
-      if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        const alpha = e.alpha;
-        const beta = e.beta;
-
-        const x = alpha / 360;
-
-        const y = (beta + 180) / 360;
-
-        position = { x, y };
-      }
+    window.addEventListener("mousemove", (e) => {
+      position = { x: e.clientX / w, y: e.clientY / h };
     });
 
     const handleChangePosition = () => {
