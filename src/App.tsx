@@ -43,6 +43,12 @@ function App() {
       return;
     }
 
+    if (!socket.connected) {
+      return;
+    }
+
+    let position: Cursor["position"] = { x: 0, y: 0 };
+
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
         const { alpha, beta, gamma } = e;
@@ -60,13 +66,16 @@ function App() {
         setX(mappedX);
         setY(mappedY);
 
-        if (socket.connected) {
-          socket.emit("cursor_receiver", {
-            position: { x, y },
-          });
-        }
+        position = { x: +x.toFixed(3), y: +y.toFixed(3) };
       }
     });
+
+    const handleChangePosition = () => {
+      socket.emit("cursor_receiver", { position });
+      requestAnimationFrame(handleChangePosition);
+    };
+
+    requestAnimationFrame(handleChangePosition);
   }, [hasAccess]);
 
   async function getPermission() {
