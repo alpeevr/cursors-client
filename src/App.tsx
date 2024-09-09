@@ -51,7 +51,7 @@ function App() {
         if (beta > 45) beta = 45;
 
         // Map gamma to x (horizontal position)
-        const x = alpha / 360;
+        const x = (270 - alpha) / 360;
 
         // Map beta to y (vertical position)
         const y = (beta + 45) / 90;
