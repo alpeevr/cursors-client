@@ -13,11 +13,6 @@ function App() {
   const [y, setY] = useState(0);
 
   useEffect(() => {
-    async function getPermission() {
-      const result = await getOrientation();
-      setHasAccess(!!result);
-    }
-
     if (!hasAccess) {
       getPermission();
       return;
@@ -43,8 +38,20 @@ function App() {
     setY(y);
   }, [alpha, beta, gamma]);
 
+  async function getPermission() {
+    const result = await getOrientation();
+    setHasAccess(!!result);
+  }
+
   return (
     <div>
+      <button
+        onClick={async () => {
+          await getPermission();
+        }}
+      >
+        Get permission
+      </button>
       <div>Alpha: {alpha}</div>
       <div>Beta: {beta}</div>
       <div>Gamma: {gamma}</div>
