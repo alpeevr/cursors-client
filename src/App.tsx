@@ -42,7 +42,10 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        let { beta: x, gamma: y } = e;
+        let { alpha: x, beta: y } = e;
+
+        x = x * -1;
+        y = y * -1;
 
         if (x > 90) {
           x = 90;
