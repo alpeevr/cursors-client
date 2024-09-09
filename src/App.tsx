@@ -42,11 +42,11 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        const gamma = e.gamma; // Left-right tilt (-90 to 90)
+        const alpha = e.alpha; // Left-right tilt (-90 to 90)
         const beta = e.beta; // Forward-backward tilt (-180 to 180)
 
         // Map gamma to x (horizontal position)
-        const x = (gamma + 90) / 180;
+        const x = (alpha + 360) / 180;
 
         // Map beta to y (vertical position)
         const y = (beta + 180) / 360;
