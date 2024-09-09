@@ -44,24 +44,16 @@ function App() {
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
-        const alpha = e.alpha; // Left-right tilt (-90 to 90)
-        let beta = e.beta; // Forward-backward tilt (-180 to 180)
+        const alpha = e.alpha; // 0 to 360 degrees (Z-axis)
+        const beta = e.beta; // -180 to 180 degrees (X-axis)
 
-        if (beta < -45) beta = -45;
-        if (beta > 45) beta = 45;
+        // Map alpha (0 to 360) to x (0 to 900)
+        const x = alpha / 360;
 
-        // Map gamma to x (horizontal position)
-        const x = (270 - alpha) / 360;
+        // Map beta (-180 to 180) to y (0 to 600)
+        const y = (beta + 180) / 360;
 
-        // Map beta to y (vertical position)
-        const y = (beta + 45) / 90;
-
-        if (initialAlpha.current === null || initialBeta.current === null) {
-          initialAlpha.current = x;
-          initialBeta.current = y;
-        }
-
-        position = { x: x - initialAlpha.current, y: y - initialBeta.current };
+        position = { x, y };
       }
     });
 
