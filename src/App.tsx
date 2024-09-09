@@ -54,7 +54,7 @@ function App() {
         x += 90;
         y += 90;
 
-        position = { x, y };
+        position = { x: x / 180, y: y / 180 };
       }
     });
 
@@ -79,7 +79,7 @@ function App() {
             await getPermission();
           }}
         >
-          Get permission
+          Get permission_{hasAccess ? "hasAccess" : "no access"}
         </button>
       </div>
     </div>
