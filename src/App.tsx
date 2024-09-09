@@ -17,9 +17,6 @@ export type ClientToServerEvents = {
   cursor_receiver: (cursor: Omit<Cursor, "color">) => void;
 };
 
-const screenWidth = window.innerWidth;
-const screenHeight = window.innerHeight;
-
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   "https://cursors-socket.onrender.com"
 );
@@ -48,25 +45,35 @@ function App() {
     }
 
     let position: Cursor["position"] = { x: 0, y: 0 };
+    let initialAlpha: number | null = null;
+    let initialBeta: number | null = null;
 
     window.addEventListener("deviceorientation", (e) => {
       if (e.alpha !== null && e.beta !== null && e.gamma !== null) {
         const { alpha, beta, gamma } = e;
 
+        if (initialAlpha === null || initialBeta === null) {
+          initialAlpha = alpha;
+          initialBeta = beta;
+        }
+
+        const deltaAlpha = alpha - initialAlpha;
+        const deltaBeta = beta - initialBeta;
+
         setAlhpa(alpha);
         setBeta(beta);
         setGamma(gamma);
 
-        const x = alpha / 360;
-        const y = (beta + 180) / 360;
+        const x = 0.5 + deltaAlpha / 360; // Small changes in alpha, mapped to (0, 1)
+        const y = 0.5 + deltaBeta / 360; // Small changes in beta, mapped to (0, 1)
 
-        const mappedX = x * screenWidth;
-        const mappedY = y * screenHeight;
+        const normalizedX = Math.max(0, Math.min(1, x));
+        const normalizedY = Math.max(0, Math.min(1, y));
 
-        setX(mappedX);
-        setY(mappedY);
+        setX(normalizedX);
+        setY(normalizedY);
 
-        position = { x: +x.toFixed(3), y: +y.toFixed(3) };
+        position = { x: +normalizedX.toFixed(3), y: +normalizedY.toFixed(3) };
       }
     });
 
