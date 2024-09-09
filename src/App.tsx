@@ -64,7 +64,7 @@ function App() {
         if (socket.connected) {
           socket.emit("cursor_receiver", {
             color: randomcolor(),
-            position: { x, y },
+            position: { x: mappedX, y: mappedY },
           });
         }
       }
