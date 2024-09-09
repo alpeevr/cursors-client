@@ -62,7 +62,7 @@ function App() {
 
         if (socket.connected) {
           socket.emit("cursor_receiver", {
-            position: { x: mappedX, y: mappedY },
+            position: { x, y },
           });
         }
       }
